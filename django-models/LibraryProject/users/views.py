@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from relationship_app.models import UserProfile
 
 def role_check(role):
     def decorator(view_func):
