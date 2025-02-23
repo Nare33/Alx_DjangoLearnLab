@@ -5,24 +5,24 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login,authenticate
 
-# Register View
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            form.save()
+            username = form.cleaned_data.get('username')
+            user = authenticate(username=username, password=form.cleaned_data.get('password1'))
             login(request, user)
-            return redirect('home')  # Redirect to home page after registration
+            return redirect('home')
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'relationship_app/register.html', {'form': form})
 
-# Custom Login View (Django built-in)
 class CustomLoginView(LoginView):
     template_name = 'login.html'
 
-# Custom Logout View (Django built-in)
 class CustomLogoutView(LogoutView):
     template_name = 'logout.html'
 
