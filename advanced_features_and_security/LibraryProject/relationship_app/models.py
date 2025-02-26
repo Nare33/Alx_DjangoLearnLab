@@ -1,5 +1,21 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+class Book(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.title
+
+class CustomUser(AbstractUser):
+    date_of_birth = models.DateField(null=True, blank=True)
+    profile_photo = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+
+    def __str__(self):
+        return self.username
 
 class Author(models.Model):
     name = models.CharField(max_length=100)
@@ -37,7 +53,7 @@ class Librarian(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField()
 
     def __str__(self):
