@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Book
 from django.contrib.auth.decorators import permission_required
-from .forms import BookForm
+from .forms import ExampleForm
 
 def book_list(request):
     books = Book.objects.all()
