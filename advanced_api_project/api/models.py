@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator
 import datetime
 
 class Author(models.Model):
-    """Model representing an author"""
+    "Model representing an author"""
     name = models.CharField(max_length=255)
 
     def __str__(self):
