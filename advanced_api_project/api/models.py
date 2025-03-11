@@ -1,26 +1,38 @@
 from django.db import models
 
 class Author(models.Model):
-    """
-    Represents an author with a name.
-    Each author can have multiple books.
-    """
-    name = models.CharField(max_length=255)
+    # Field to store the author's name
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
 class Book(models.Model):
-    """
-    Represents a book with a title, publication year, and associated author.
-    A book is linked to a single author but an author can have multiple books.
-    """
-    title = models.CharField(max_length=255)
+    # Field for the book's title
+    title = models.CharField(max_length=200)
+    # Field for the year the book was published
     publication_year = models.IntegerField()
+    # ForeignKey linking the Book model to the Author model (one-to-many relationship)
     author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)
-    author = models.CharField(max_length=255)
-    published_date = models.DateField()
-    isbn_number = models.CharField(max_length=13)
+
+    def __str__(self):
+        return self.title
+from django.db import models
+
+class Author(models.Model):
+    # Field to store the author's name
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Book(models.Model):
+    # Field for the book's title
+    title = models.CharField(max_length=200)
+    # Field for the year the book was published
+    publication_year = models.IntegerField()
+    # ForeignKey linking the Book model to the Author model (one-to-many relationship)
+    author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

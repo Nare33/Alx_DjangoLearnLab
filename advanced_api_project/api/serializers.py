@@ -2,42 +2,21 @@ from rest_framework import serializers
 from .models import Author, Book
 
 class BookSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Book model.
-    Includes validation to ensure the publication year is not in the future.
-    """
-    class Meta:
-        model = Book
-        fields = ['title', 'publication_year', 'author']
-
+    # Custom validation for ensuring the publication year is not in the future
     def validate_publication_year(self, value):
-        """
-        Custom validation for publication_year field.
-        Ensures that the publication year is not in the future.
-        """
         if value > 2025:
             raise serializers.ValidationError("Publication year cannot be in the future.")
         return value
 
+    class Meta:
+        model = Book
+        fields = '__all__'
+
 class AuthorSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Author model.
-    Includes a nested BookSerializer to display books written by the author.
-    """
+    # Nested BookSerializer to display all books related to an author
     books = BookSerializer(many=True, read_only=True)
 
     class Meta:
         model = Author
         fields = ['name', 'books']
-
-class BookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        fields = '__all__'
-
-    def validate_isbn_number(self, value):
-        """Ensure ISBN number is unique."""
-        if Book.objects.filter(isbn_number=value).exists():
-            raise serializers.ValidationError("ISBN number already exists.")
-        return value
 
