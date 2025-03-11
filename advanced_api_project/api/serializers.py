@@ -30,3 +30,14 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ['name', 'books']
 
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+    def validate_isbn_number(self, value):
+        """Ensure ISBN number is unique."""
+        if Book.objects.filter(isbn_number=value).exists():
+            raise serializers.ValidationError("ISBN number already exists.")
+        return value
+
