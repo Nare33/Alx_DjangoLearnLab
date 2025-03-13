@@ -1,12 +1,3 @@
-from rest_framework import generics
-from .models import Author
-from .serializers import AuthorSerializer
+from django.shortcuts import render
 
-class AuthorListView(generics.ListCreateAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
-class AuthorDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
+# Create your views here.
