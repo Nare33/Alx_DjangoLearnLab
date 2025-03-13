@@ -1,5 +1,4 @@
-# advanced-api-project/api/test_views.py
-from django.test import TestCase, Client
+from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
 from .models import Book
@@ -7,9 +6,8 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 import json
 
-class BookAPITest(TestCase):
+class BookAPITest(APITestCase):
     def setUp(self):
-        self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
@@ -29,14 +27,14 @@ class BookAPITest(TestCase):
 
     def test_book_create(self):
         data = {'title': 'New Book', 'author': 'New Author', 'publication_date': '2023-03-01'}
-        response = self.client.post(reverse('book-list'), data=json.dumps(data), content_type='application/json')
+        response = self.client.post(reverse('book-list'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Book.objects.count(), 3)
         self.assertEqual(Book.objects.get(title='New Book').author, 'New Author')
 
     def test_book_update(self):
         data = {'title': 'Updated Book', 'author': 'Updated Author', 'publication_date': '2023-04-01'}
-        response = self.client.put(reverse('book-detail', args=[self.book1.id]), data=json.dumps(data), content_type='application/json')
+        response = self.client.put(reverse('book-detail', args=[self.book1.id]), data=data, format='json') 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Book.objects.get(id=self.book1.id).title, 'Updated Book')
 
@@ -59,13 +57,13 @@ class BookAPITest(TestCase):
     def test_book_ordering(self):
         response = self.client.get(reverse('book-list') + '?ordering=publication_date')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]['title'], 'Test Book 1') #Earlier date should be first.
+        self.assertEqual(response.data[0]['title'], 'Test Book 1')
 
         response = self.client.get(reverse('book-list') + '?ordering=-publication_date')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]['title'], 'Test Book 2')#Later date should be first.
+        self.assertEqual(response.data[0]['title'], 'Test Book 2')
 
     def test_unauthenticated_access(self):
-        self.client.credentials() # Remove credentials
+        self.client.credentials()
         response = self.client.get(reverse('book-list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
