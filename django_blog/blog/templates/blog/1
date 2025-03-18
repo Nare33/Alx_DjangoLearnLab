@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Comment</title>
+</head>
+<body>
+    <h1>New Comment on "{{ post.title }}"</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+    <a href="{% url 'post_detail' post.pk %}">Cancel</a>
+</body>
+</html>
