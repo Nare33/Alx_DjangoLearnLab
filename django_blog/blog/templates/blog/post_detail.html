@@ -4,14 +4,15 @@
 {% block content %}
   <h1>{{ post.title }}</h1>
   <p>{{ post.content }}</p>
+  
   <h2>Comments</h2>
   <ul>
-    {% for comment in comments %}
+    {% for comment in post.comments.all %}
       <li>
         <p><strong>{{ comment.author.username }}</strong>: {{ comment.content }}</p>
         <p>Posted on {{ comment.created_at }}</p>
         {% if comment.author == user %}
-          <a href="{% url 'edit_comment' comment.id %}">Edit</a> | 
+          <a href="{% url 'edit_comment' comment.id %}">Edit</a> |
           <a href="{% url 'delete_comment' comment.id %}">Delete</a>
         {% endif %}
       </li>
@@ -20,9 +21,9 @@
   
   {% if user.is_authenticated %}
     <h3>Leave a Comment</h3>
-    <form method="POST">
+    <form method="POST" action="{% url 'comment_create' pk=post.id %}">
       {% csrf_token %}
-      {{ comment_form.as_p }}
+      {{ form.as_p }}
       <button type="submit">Post Comment</button>
     </form>
   {% endif %}
