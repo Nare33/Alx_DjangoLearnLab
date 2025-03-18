@@ -13,30 +13,3 @@
     <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
-
-#Documentation:
-#1. User Registration:
-#   * Users can register by navigating to /register/
-#   * The registration form requires a username and email.
-#   * Upon successful registration, the user is logged in and redirected to their profile page.
-#2. User Login:
-#   * Users can log in by navigating to /login/
-#   * The login form requires a username and password.
-#   * Upon successful login, the user is redirected to their profile page.
-#3. User Logout:
-#   * Users can log out by navigating to /logout/
-#   * Upon successful logout, the user is redirected to the login page.
-#4. User Profile:
-#   * Authenticated users can view and edit their profile by navigating to /profile/
-#   * The profile page displays the user's username and email.
-#   * Users can update their profile information and change their password.
-#Testing:
-#   1. run the server.
-#   2. navigate to /register/ and create a user.
-#   3. navigate to /login/ and log in with the created user.
-#   4. navigate to /profile/ and change the user's information.
-#   5. navigate to /logout/ and log out.
-#   6. try to navigate to /profile/ while logged out, you should be redirected to login.
-#Security:
-#   * CSRF protection is used in all forms.
-#   * Passwords are hashed using Django's built-in hashing algorithms.
