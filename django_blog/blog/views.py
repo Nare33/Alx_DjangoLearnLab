@@ -4,20 +4,31 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Post
 from .forms import PostForm
+from django.contrib.auth.decorators import login_required 
 
-# List view to display all posts
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('post-list')
+    else:
+        form = PostForm()
+    return render(request, 'blog/post_form.html', {'form': form})
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'  
     context_object_name = 'posts'
 
-# Detail view to display a single post
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'  
     context_object_name = 'post'
 
-# Create view to allow users to create new posts
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm  
@@ -27,7 +38,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user  
         return super().form_valid(form)
 
-# Update view to allow users to edit their posts
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
@@ -38,7 +48,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         return self.request.user == post.author
 
-# Delete view to allow users to delete their posts
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'  
