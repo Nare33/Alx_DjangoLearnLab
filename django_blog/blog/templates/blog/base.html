@@ -1,33 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Django Blog{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="content">
-        {% block content %}
-        <!-- Page-specific content goes here -->
-        {% endblock %}
-    </div>
-
-    <footer>
-        <p>&copy; 2024 Django Blog</p>
-    </footer>
-
-    <script src="{% static 'js/scripts.js' %}"></script>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}!</p>
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
+
+#Documentation:
+#1. User Registration:
+#   * Users can register by navigating to /register/
+#   * The registration form requires a username and email.
+#   * Upon successful registration, the user is logged in and redirected to their profile page.
+#2. User Login:
+#   * Users can log in by navigating to /login/
+#   * The login form requires a username and password.
+#   * Upon successful login, the user is redirected to their profile page.
+#3. User Logout:
+#   * Users can log out by navigating to /logout/
+#   * Upon successful logout, the user is redirected to the login page.
+#4. User Profile:
+#   * Authenticated users can view and edit their profile by navigating to /profile/
+#   * The profile page displays the user's username and email.
+#   * Users can update their profile information and change their password.
+#Testing:
+#   1. run the server.
+#   2. navigate to /register/ and create a user.
+#   3. navigate to /login/ and log in with the created user.
+#   4. navigate to /profile/ and change the user's information.
+#   5. navigate to /logout/ and log out.
+#   6. try to navigate to /profile/ while logged out, you should be redirected to login.
+#Security:
+#   * CSRF protection is used in all forms.
+#   * Passwords are hashed using Django's built-in hashing algorithms.
