@@ -12,8 +12,16 @@ from .models import Post, Tag
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
-    context_object_name = 'posts'
-    queryset = Post.objects.all()
+    context_object_name = 'posts'  
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(Q(title__icontains=search_query) | Q(content__icontains=search_query))
+
+        return queryset
 
 class PostDetailView(DetailView):
     model = Post
@@ -38,15 +46,15 @@ class PostDeleteView(DeleteView):
     success_url = reverse_lazy('post-list')
 
 def post_search(request):
-    query = request.GET.get('q', '')
-    posts = Post.objects.all()
+    search_query = request.GET.get('q', '')  
+    if search_query:
+        posts = Post.objects.filter(
+            Q(title__icontains=search_query) | Q(content__icontains=search_query)
+        )
+    else:
+        posts = Post.objects.all()
 
-    if query:
-        posts = posts.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
+    return render(request, 'blog/post_list.html', {'posts': posts})
 
     return render(request, 'blog/post_search_results.html', {'posts': posts, 'query': query})
 

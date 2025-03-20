@@ -1,22 +1,15 @@
 <!-- blog/templates/blog/post_list.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Posts</title>
-</head>
-<body>
-    <h2>All Blog Posts</h2>
-    <ul>
-        {% for post in posts %}
-            <li>
-                <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a>
-                <p>{{ post.content|truncatewords:20 }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'post-create' %}">Create New Post</a>
-</body>
-</html>
+<form method="GET" action="{% url 'post_search' %}">
+    <input type="text" name="q" placeholder="Search for posts" value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+</form>
+
+<ul>
+    {% for post in posts %}
+        <li>
+            <a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+            <p>{{ post.content|truncatewords:30 }}</p>
+        </li>
+    {% endfor %}
+</ul>
 
