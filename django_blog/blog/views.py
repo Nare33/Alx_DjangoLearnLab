@@ -9,6 +9,16 @@ from django.db.models import Q
 from django.shortcuts import render
 from .models import Post, Tag
 
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list_by_tag.html'  # Use your desired template
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_slug = self.kwargs['tag_slug']
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags=tag)
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
