@@ -1,10 +1,59 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Comment
 from .forms import CommentForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.shortcuts import render
+from .models import Post, Tag
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    queryset = Post.objects.all()
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+
+class PostCreateView(CreateView):
+    model = Post
+    template_name = 'blog/post_form.html'  
+    fields = ['title', 'content', 'tags']
+    success_url = reverse_lazy('post-list')
+
+class PostUpdateView(UpdateView):
+    model = Post
+    template_name = 'blog/post_form.html'  
+    fields = ['title', 'content', 'tags']  
+    success_url = reverse_lazy('post-list')
+
+class PostDeleteView(DeleteView):
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'  
+    success_url = reverse_lazy('post-list')
+
+def post_search(request):
+    query = request.GET.get('q', '')
+    posts = Post.objects.all()
+
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+
+    return render(request, 'blog/post_search_results.html', {'posts': posts, 'query': query})
+
+def tag_posts(request, tag_name):
+    tag = Tag.objects.get(name=tag_name)
+    posts = tag.posts.all()  
+    return render(request, 'blog/tag_posts.html', {'posts': posts, 'tag_name': tag_name})
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
