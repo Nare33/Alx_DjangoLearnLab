@@ -1,17 +1,14 @@
 from django import forms
 from .models import Comment
 from .models import Post, Tag
+from taggit.forms import TagWidget
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
 
-    tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
+    tags = forms.CharField(widget=TagWidget(), required=False)
 
 class CommentForm(forms.ModelForm):
     class Meta:
