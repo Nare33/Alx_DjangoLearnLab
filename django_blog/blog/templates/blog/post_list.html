@@ -1,15 +1,24 @@
 <!-- blog/templates/blog/post_list.html -->
 <form method="GET" action="{% url 'post_search' %}">
-    <input type="text" name="q" placeholder="Search for posts" value="{{ request.GET.q }}">
+    <input type="text" name="q" placeholder="Search posts" value="{{ search_query }}">
+    <input type="text" name="tag" placeholder="Search by tag" value="{{ tag_query }}">
     <button type="submit">Search</button>
 </form>
 
+<h1>Posts</h1>
 <ul>
     {% for post in posts %}
         <li>
             <a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
             <p>{{ post.content|truncatewords:30 }}</p>
+            <p>Tags: 
+                {% for tag in post.tags.all %}
+                    <span>{{ tag.name }}</span>
+                {% endfor %}
+            </p>
         </li>
+    {% empty %}
+        <p>No posts found.</p>
     {% endfor %}
 </ul>
 

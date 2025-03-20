@@ -46,17 +46,26 @@ class PostDeleteView(DeleteView):
     success_url = reverse_lazy('post-list')
 
 def post_search(request):
-    search_query = request.GET.get('q', '')  
-    if search_query:
+    search_query = request.GET.get('q', '')  # Get the search query from the GET request
+    tag_query = request.GET.get('tag', '')  # Get the tag filter from the GET request
+    
+    if search_query and tag_query:
+        posts = Post.objects.filter(
+            Q(title__icontains=search_query) |
+            Q(content__icontains=search_query),
+            tags__name__icontains=tag_query  # Filter by tag name
+        ).distinct()  # Use distinct to ensure no duplicate posts
+
+    elif search_query:
         posts = Post.objects.filter(
             Q(title__icontains=search_query) | Q(content__icontains=search_query)
         )
+    elif tag_query:
+        posts = Post.objects.filter(tags__name__icontains=tag_query).distinct()
     else:
         posts = Post.objects.all()
 
-    return render(request, 'blog/post_list.html', {'posts': posts})
-
-    return render(request, 'blog/post_search_results.html', {'posts': posts, 'query': query})
+    return render(request, 'blog/post_list.html', {'posts': posts, 'search_query': search_query, 'tag_query': tag_query})
 
 def tag_posts(request, tag_name):
     tag = Tag.objects.get(name=tag_name)
