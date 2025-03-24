@@ -1,33 +1,34 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework.authtoken.models import Token
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = get_user_model()
-        fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers']
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
-        fields = ['id', 'username', 'bio', 'profile_picture', 'followers']
-
-class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = get_user_model()
-        fields = ['username', 'password', 'bio', 'profile_picture']
+        model = User
+        fields = ('id', 'username', 'password', 'email', 'bio', 'profile_picture')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Use Django's built-in create_user method to handle password hashing
-        user = get_user_model().objects.create_user(**validated_data)
-        return user
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()  
+    username = serializers.CharField()
     password = serializers.CharField()
 
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token
-        fields = ['key']
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Incorrect Credentials")
 
+     def create(self, validated_data):
+        user = validated_data
+        token, created = Token.objects.get_or_create(user=user)
+        return token

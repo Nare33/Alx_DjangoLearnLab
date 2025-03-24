@@ -1,37 +1,25 @@
-from django.contrib.auth import authenticate
-from rest_framework import status, views
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import RegisterSerializer, UserSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer, LoginSerializer
+from django.contrib.auth import get_user_model
 
-class RegisterView(views.APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token = Token.objects.create(user=user)
-            return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+User = get_user_model()
 
-class LoginView(views.APIView):
-    def post(self, request, *args, **kwargs):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(username=username, password=password)
+class UserCreate(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-        if user:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
-        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
 
-class ProfileView(views.APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        return Response(UserSerializer(user).data)
-
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        token = serializer.create(user)
+        return Response({
+            'token': token.key,
+            'user_id': user.id,
+            'username': user.username
+        })
