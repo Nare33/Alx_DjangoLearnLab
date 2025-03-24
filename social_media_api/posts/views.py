@@ -5,6 +5,16 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import filters
+from .serializers import PostSerializer
+
+class FeedView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        followed_users = request.user.following.all()
+        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
