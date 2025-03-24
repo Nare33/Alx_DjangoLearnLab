@@ -32,3 +32,7 @@ class LoginSerializer(serializers.Serializer):
         user = validated_data
         token, created = Token.objects.get_or_create(user=user)
         return token
+
+     def get_token(self, user):
+      token, created = Token.objects.get_or_create(user=user)
+      return token.key
