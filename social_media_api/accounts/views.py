@@ -1,13 +1,9 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer, LoginSerializer
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 class UserCreate(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = UserSerializer.Meta.model.objects.all()
     serializer_class = UserSerializer
 
 class LoginView(generics.GenericAPIView):
@@ -17,9 +13,9 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        token = serializer.create(user)
+        token = serializer.get_token(user)
         return Response({
-            'token': token.key,
+            'token': token,
             'user_id': user.id,
-            'username': user.username
+            'username': user.username,
         })
