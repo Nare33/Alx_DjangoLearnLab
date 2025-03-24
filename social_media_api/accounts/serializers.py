@@ -7,18 +7,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers']
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'username', 'bio', 'profile_picture', 'followers']
+
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'bio', 'profile_picture']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['username', 'password', 'bio', 'profile_picture']
 
     def create(self, validated_data):
-        user = get_user_model().objects.create_user(
-            validated_data['username'],
-            validated_data['email'],
-            validated_data['password'],
-        )
+        # Use Django's built-in create_user method to handle password hashing
+        user = get_user_model().objects.create_user(**validated_data)
         return user
 
 class LoginSerializer(serializers.Serializer):
