@@ -1,7 +1,5 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.exceptions import AuthenticationFailed
-from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework.authtoken.models import Token
 
 User = get_user_model()
@@ -9,25 +7,35 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'bio', 'profile_picture']
+        fields = ('id', 'username', 'password', 'email', 'bio', 'profile_picture', 'followers')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password'],
-            bio=validated_data.get('bio', ''),
-            profile_picture=validated_data.get('profile_picture', '')
-        )
-        return user
+        password = validated_data.pop('password', None)
+        user = User.objects.create_user(**validated_data) 
+        if password is not None:
+            user.set_password(password)
+        user.save()
+        token = Token.objects.create(user=user) 
+        return {'user': user, 'token': token.key} 
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
-        if user is None:
-            raise AuthenticationFailed("Invalid credentials")
+        username = data.get('username', '')
+        password = data.get('password', '')
 
-        token, created = Token.objects.get_or_create(user=user)
-        return {'token': token.key}
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user:
+                if user.is_active:
+                    data['user'] = user
+                    return data
+                else:
+                    raise serializers.ValidationError('User is deactivated.')
+            else:
+                raise serializers.ValidationError('Unable to log in with provided credentials.')
+        else:
+            raise serializers.ValidationError('Must include "username" and "password".')
