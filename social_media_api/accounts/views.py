@@ -33,8 +33,9 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 class UserRegistrationView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
+    
 
 class UserLoginView(generics.GenericAPIView):
     serializer_class = UserSerializer
