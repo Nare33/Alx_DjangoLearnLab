@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer, LoginSerializer
 from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
 
 User = get_user_model()
 
