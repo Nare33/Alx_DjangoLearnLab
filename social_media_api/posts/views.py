@@ -5,6 +5,35 @@ from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from notifications.models import Notification
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def like_post(request, pk):
+    post = generics.get_object_or_404(Post, pk=pk)
+
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if created:
+        Notification.objects.create(
+            recipient=post.author,
+            actor=request.user,
+            verb='liked your post',
+            target=post
+        )
+        return Response({'message': 'Post liked'}, status=status.HTTP_201_CREATED)
+    else:
+        return Response({'message': 'Post already liked'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def unlike_post(request, pk):
+    post = generics.get_object_or_404(Post, pk=pk)
+
+    try:
+        like = Like.objects.get(user=request.user, post=post)
+        like.delete()
+        return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK)
+    except Like.DoesNotExist:
+        return Response({'message': 'Post not liked'}, status=status.HTTP_400_BAD_REQUEST)
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
