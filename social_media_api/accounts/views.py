@@ -1,4 +1,4 @@
-from rest_framework import status, generics
+from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthentcated
@@ -30,4 +30,17 @@ def unfollow_user(request, user_id):
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+class UserRegistrationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserLoginView(generics.GenericAPIView):
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        serializer = UserSerializer(data = request.data)
+        if serializer.is_valid():
+            return Response(serializer.data)
+        return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
