@@ -1,15 +1,9 @@
+# social_media_api/posts/views.py
 from rest_framework import viewsets, permissions, filters, generics
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Q
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
-from rest_framework import filters, status
-from .serializers import PostSerializer
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 
 class PostPagination(PageNumberPagination):
     page_size = 10
@@ -55,5 +49,5 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following_users = user.followers.all()
+        following_users = user.followers.all() # corrected line
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
