@@ -1,4 +1,3 @@
-# social_media_api/posts/views.py
 from rest_framework import viewsets, permissions, filters, generics
 from rest_framework.pagination import PageNumberPagination
 from .models import Post, Comment
@@ -49,5 +48,5 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following_users = user.followers.all() # corrected line
+        following_users = user.following.all() 
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
